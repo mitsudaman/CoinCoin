@@ -8,6 +8,9 @@ import { DbPlayer } from '@/lib/supabase'
 import { CoinClickEffect, clickEffectStyles } from '@/components/CoinClickEffect'
 import { useAudio, usePurchaseSound } from '@/hooks/useAudio'
 import { useGameTheme } from '@/hooks/useGameTheme'
+import { usePrestige } from '@/hooks/usePrestige'
+import PrestigeButton from '@/components/PrestigeButton'
+import PrestigeShop from '@/components/PrestigeShop'
 
 export default function Home() {
   const [coins, setCoins] = useState(0)
@@ -36,10 +39,15 @@ export default function Home() {
   
   // テーマシステム（毎秒獲得数ベース）
   const { currentTheme, stageUpMessage } = useGameTheme(coinsPerSecond)
+  
+  // プレステージシステム
+  const prestige = usePrestige(player, coins)
+  const [showPrestigeShop, setShowPrestigeShop] = useState(false)
 
   // コインクリック処理
   const handleCoinClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setCoins(prev => prev + clickValue)
+    const totalClickValue = clickValue + prestige.prestigeEffect.clickBonus
+    setCoins(prev => prev + totalClickValue)
     
     // クリック音を再生
     clickSound.play()
@@ -49,7 +57,7 @@ export default function Home() {
       id: Date.now().toString() + Math.random(),
       x: event.clientX, // クリックした位置のX座標
       y: event.clientY, // クリックした位置のY座標
-      value: clickValue
+      value: totalClickValue
     }
     
     setClickEffects(prev => [...prev, newEffect])
@@ -86,6 +94,32 @@ export default function Home() {
       console.error('Login failed:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // プレステージ完了後の処理
+  const handlePrestigeCompleted = async () => {
+    console.log('🎯 handlePrestigeCompleted called')
+    
+    if (!player) return
+    
+    try {
+      // ゲーム状態をリセット
+      setCoins(0)
+      setBuildings(INITIAL_BUILDINGS)
+      setClickValue(1)
+      setCoinsPerSecond(0)
+      
+      // プレイヤーデータを再取得してプレステージ情報を更新
+      const updatedPlayerData = await GameService.getOrCreatePlayer(player.username)
+      if (updatedPlayerData) {
+        setPlayer(updatedPlayerData)
+        console.log('🎯 Player data refreshed after prestige:', updatedPlayerData)
+      }
+      
+      console.log('🎯 Game state reset completed')
+    } catch (error) {
+      console.error('🎯 Error in handlePrestigeCompleted:', error)
     }
   }
 
@@ -135,7 +169,7 @@ export default function Home() {
     const building = buildings.find(b => b.id === buildingId)
     if (!building) return
 
-    const price = getBuildingPrice(building)
+    const price = getBuildingPrice(building, prestige.prestigeEffect.priceDiscount)
     if (coins >= price) {
       setCoins(prev => prev - price)
       setBuildings(prev => 
@@ -164,14 +198,14 @@ export default function Home() {
   // 毎秒コイン生成量とクリック値を計算
   useEffect(() => {
     const totalCps = buildings.reduce((sum, building) => {
-      return sum + getBuildingCps(building)
+      return sum + getBuildingCps(building, prestige.prestigeEffect.productionMultiplier)
     }, 0)
     setCoinsPerSecond(totalCps)
     
     // クリック値を動的に計算
     const currentClickValue = getClickValue(buildings)
     setClickValue(currentClickValue)
-  }, [buildings])
+  }, [buildings, prestige.prestigeEffect.productionMultiplier])
 
   // 自動生成処理（毎秒実行）
   useEffect(() => {
@@ -284,6 +318,22 @@ export default function Home() {
             >
               🔄 更新
             </button>
+            <PrestigeButton
+              canPrestige={prestige.canPrestigeNow}
+              prestigePoints={prestige.prestigePoints}
+              isLoading={prestige.isLoading}
+              onPrestige={prestige.executePrestige}
+              onPrestigeCompleted={handlePrestigeCompleted}
+            />
+            {prestige.prestigeData.prestigePoints > 0 && (
+              <button
+                onClick={() => setShowPrestigeShop(true)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-500
+                         text-white font-bold rounded-lg transition-colors text-sm"
+              >
+                🛒 ショップ ({prestige.prestigeData.prestigePoints}P)
+              </button>
+            )}
             {saveMessage && (
               <span className={`text-sm ${
                 saveMessage.includes('完了') ? 'text-green-400' : 'text-red-400'
@@ -402,7 +452,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-2 text-sm">
             <div className="flex justify-between">
               <span>クリック値:</span>
-              <span className="text-yellow-300">{clickValue} コイン</span>
+              <span className="text-yellow-300">{clickValue + prestige.prestigeEffect.clickBonus} コイン</span>
             </div>
             <div className="flex justify-between">
               <span>総コイン数:</span>
@@ -412,6 +462,24 @@ export default function Home() {
               <span>毎秒獲得:</span>
               <span className="text-yellow-300">{coinsPerSecond.toFixed(1)}</span>
             </div>
+            {prestige.prestigeData.prestigePoints > 0 && (
+              <>
+                <hr className="border-gray-600 my-2" />
+                <div className="text-xs text-purple-300 font-bold mb-1">プレステージ効果</div>
+                <div className="flex justify-between text-xs">
+                  <span>クリックボーナス:</span>
+                  <span className="text-purple-300">+{prestige.prestigeEffect.clickBonus}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>生産効率:</span>
+                  <span className="text-purple-300">{(prestige.prestigeEffect.productionMultiplier * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>価格割引:</span>
+                  <span className="text-purple-300">{(prestige.prestigeEffect.priceDiscount * 100).toFixed(0)}%</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -420,8 +488,8 @@ export default function Home() {
           <h2 className="text-xl font-bold text-yellow-400 mb-4">施設</h2>
           <div className="space-y-3">
             {buildings.map((building) => {
-              const price = getBuildingPrice(building)
-              const cps = getBuildingCps(building)
+              const price = getBuildingPrice(building, prestige.prestigeEffect.priceDiscount)
+              const cps = getBuildingCps(building, prestige.prestigeEffect.productionMultiplier)
               const canAfford = coins >= price
               const displayState = getBuildingDisplayState(building, buildings)
               const unlockText = getUnlockRequirementText(building, buildings)
@@ -529,6 +597,17 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* プレステージショップ */}
+      {showPrestigeShop && (
+        <PrestigeShop
+          prestigeData={prestige.prestigeData}
+          prestigeEffect={prestige.prestigeEffect}
+          isLoading={prestige.isLoading}
+          onBuyItem={prestige.buyPrestigeItem}
+          onClose={() => setShowPrestigeShop(false)}
+        />
+      )}
     </div>
   )
 }

@@ -82,16 +82,18 @@ export const INITIAL_BUILDINGS: Building[] = [
 ]
 
 // 施設の現在価格を計算（15%ずつ上昇）
-export function getBuildingPrice(building: Building): number {
-  return Math.floor(building.basePrice * Math.pow(1.15, building.owned))
+export function getBuildingPrice(building: Building, priceDiscount: number = 0): number {
+  const basePrice = building.basePrice * Math.pow(1.15, building.owned)
+  const discountedPrice = basePrice * (1 - priceDiscount)
+  return Math.floor(Math.max(discountedPrice, basePrice * 0.1)) // 最低でも10%は残す
 }
 
 // 施設の総CPS（Coins Per Second）を計算
-export function getBuildingCps(building: Building): number {
+export function getBuildingCps(building: Building, productionMultiplier: number = 1): number {
   const baseProduction = building.baseCps * building.owned
   // アップグレードレベルに応じて倍率を適用（レベル1=2倍、レベル2=3倍...）
   const upgradeMultiplier = building.upgradeLevel ? building.upgradeLevel + 1 : 1
-  return baseProduction * upgradeMultiplier
+  return baseProduction * upgradeMultiplier * productionMultiplier
 }
 
 // 総クリック値を計算

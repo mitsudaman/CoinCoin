@@ -11,6 +11,12 @@ class MockGameService {
       buildings: { coin_maker: 3, gold_mine: 2 },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      lifetime_coins: 800,
+      prestige_points: 5,
+      click_power_items: 2,
+      production_boost_items: 1,
+      price_reduction_items: 0,
+      special_effects: 0,
     },
     {
       id: '2', 
@@ -19,6 +25,12 @@ class MockGameService {
       buildings: { coin_maker: 2 },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      lifetime_coins: 300,
+      prestige_points: 2,
+      click_power_items: 1,
+      production_boost_items: 0,
+      price_reduction_items: 1,
+      special_effects: 0,
     },
     {
       id: '3',
@@ -27,6 +39,12 @@ class MockGameService {
       buildings: { coin_maker: 5, gold_mine: 3, bank: 1 },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      lifetime_coins: 1500,
+      prestige_points: 10,
+      click_power_items: 3,
+      production_boost_items: 2,
+      price_reduction_items: 2,
+      special_effects: 0,
     }
   ]
 
@@ -50,6 +68,12 @@ class MockGameService {
         buildings: {},
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        lifetime_coins: 0,
+        prestige_points: 0,
+        click_power_items: 0,
+        production_boost_items: 0,
+        price_reduction_items: 0,
+        special_effects: 0,
       }
 
       this.players.push(newPlayer)
@@ -121,6 +145,112 @@ class MockGameService {
     } catch (error) {
       console.error('Mock rank error:', error)
       return -1
+    }
+  }
+
+  // プレステージ実行
+  async executePrestige(playerId: string, currentCoins: number): Promise<{ success: boolean; prestigePoints: number }> {
+    console.log('🎮 Mock.executePrestige called with:', { playerId, currentCoins })
+    console.log('🎮 Mock: Current players count:', this.players.length)
+    console.log('🎮 Mock: Available player IDs:', this.players.map(p => ({ id: p.id, username: p.username })))
+    
+    await this.delay(400)
+
+    try {
+      const playerIndex = this.players.findIndex(p => p.id === playerId)
+      console.log('🎮 Mock: Player found at index:', playerIndex)
+      
+      if (playerIndex === -1) {
+        console.log('❌ Mock: Player not found with ID:', playerId)
+        return { success: false, prestigePoints: 0 }
+      }
+
+      const player = this.players[playerIndex]
+      console.log('🎮 Mock: Found player:', {
+        id: player.id,
+        username: player.username,
+        currentCoins: player.coins,
+        lifetimeCoins: player.lifetime_coins,
+        prestigePoints: player.prestige_points
+      })
+      
+      const lifetimeCoins = (player.lifetime_coins || 0) + currentCoins
+      const newPrestigePoints = Math.floor(lifetimeCoins / 100)
+      const earnedPoints = newPrestigePoints - (player.prestige_points || 0)
+
+      console.log('🎮 Mock: Prestige calculations:', {
+        oldLifetimeCoins: player.lifetime_coins || 0,
+        addingCoins: currentCoins,
+        newLifetimeCoins: lifetimeCoins,
+        oldPrestigePoints: player.prestige_points || 0,
+        newPrestigePoints,
+        earnedPoints
+      })
+
+      // プレステージ実行: データをリセットして新しいポイントを付与
+      this.players[playerIndex] = {
+        ...player,
+        coins: 0,
+        buildings: {},
+        lifetime_coins: lifetimeCoins,
+        prestige_points: newPrestigePoints,
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('✅ Mock: Prestige executed for', player.username, 'earned:', earnedPoints, 'points')
+      console.log('🎮 Mock: Updated player:', this.players[playerIndex])
+      return { success: true, prestigePoints: earnedPoints }
+    } catch (error) {
+      console.error('❌ Mock prestige error:', error)
+      return { success: false, prestigePoints: 0 }
+    }
+  }
+
+  // プレステージアイテム購入
+  async buyPrestigeItem(playerId: string, itemType: string): Promise<boolean> {
+    await this.delay(300)
+
+    try {
+      const playerIndex = this.players.findIndex(p => p.id === playerId)
+      if (playerIndex === -1) return false
+
+      const player = this.players[playerIndex]
+      let cost = 0
+      const updateData: Partial<DbPlayer> = {}
+
+      switch (itemType) {
+        case 'click_power':
+          cost = 1
+          updateData.click_power_items = (player.click_power_items || 0) + 1
+          break
+        case 'production_boost':
+          cost = 2
+          updateData.production_boost_items = (player.production_boost_items || 0) + 1
+          break
+        case 'price_reduction':
+          cost = 3
+          updateData.price_reduction_items = (player.price_reduction_items || 0) + 1
+          break
+        default:
+          return false
+      }
+
+      if ((player.prestige_points || 0) < cost) return false
+
+      updateData.prestige_points = (player.prestige_points || 0) - cost
+      updateData.updated_at = new Date().toISOString()
+
+      // プレイヤーデータを更新
+      this.players[playerIndex] = {
+        ...player,
+        ...updateData
+      }
+
+      console.log('🎮 Mock: Prestige item purchased:', itemType, 'by', player.username)
+      return true
+    } catch (error) {
+      console.error('Mock prestige item purchase error:', error)
+      return false
     }
   }
 

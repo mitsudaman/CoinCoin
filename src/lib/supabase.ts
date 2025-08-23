@@ -13,4 +13,11 @@ export interface DbPlayer {
   buildings: { [key: string]: number }
   created_at: string
   updated_at: string
+  // プレステージ関連データ
+  lifetime_coins?: number
+  prestige_points?: number
+  click_power_items?: number
+  production_boost_items?: number
+  price_reduction_items?: number
+  special_effects?: number
 }

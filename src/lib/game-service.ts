@@ -129,4 +129,109 @@ export class GameService {
       return -1
     }
   }
+
+  // プレステージ実行
+  static async executePrestige(playerId: string, currentCoins: number): Promise<{ success: boolean; prestigePoints: number }> {
+    console.log('🎮 GameService.executePrestige called with:', { playerId, currentCoins })
+    console.log('🎮 isDev:', isDev)
+    console.log('🎮 NODE_ENV:', process.env.NODE_ENV)
+    console.log('🎮 SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    
+    if (isDev) {
+      console.log('🎮 Using mock implementation')
+      try {
+        const result = await MockGameServiceInstance.executePrestige(playerId, currentCoins)
+        console.log('🎮 Mock result:', result)
+        return result
+      } catch (error) {
+        console.error('🎮 Mock executePrestige error:', error)
+        return { success: false, prestigePoints: 0 }
+      }
+    }
+
+    try {
+      const { data: player } = await supabase
+        .from('players')
+        .select('lifetime_coins, prestige_points')
+        .eq('id', playerId)
+        .single()
+
+      if (!player) return { success: false, prestigePoints: 0 }
+
+      const lifetimeCoins = (player.lifetime_coins || 0) + currentCoins
+      const newPrestigePoints = Math.floor(lifetimeCoins / 100)
+      const earnedPoints = newPrestigePoints - (player.prestige_points || 0)
+
+      // リセット実行
+      const { error } = await supabase
+        .from('players')
+        .update({
+          coins: 0,
+          buildings: {},
+          lifetime_coins: lifetimeCoins,
+          prestige_points: newPrestigePoints,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', playerId)
+
+      if (error) throw error
+      return { success: true, prestigePoints: earnedPoints }
+    } catch (error) {
+      console.error('Error executing prestige:', error)
+      return { success: false, prestigePoints: 0 }
+    }
+  }
+
+  // プレステージアイテム購入
+  static async buyPrestigeItem(playerId: string, itemType: string): Promise<boolean> {
+    if (isDev) {
+      return MockGameServiceInstance.buyPrestigeItem(playerId, itemType)
+    }
+
+    try {
+      const { data: player } = await supabase
+        .from('players')
+        .select('prestige_points, click_power_items, production_boost_items, price_reduction_items')
+        .eq('id', playerId)
+        .single()
+
+      if (!player) return false
+
+      const updateData: Record<string, number | string> = {}
+      let cost = 0
+
+      switch (itemType) {
+        case 'click_power':
+          cost = 1
+          updateData.click_power_items = (player.click_power_items || 0) + 1
+          break
+        case 'production_boost':
+          cost = 2
+          updateData.production_boost_items = (player.production_boost_items || 0) + 1
+          break
+        case 'price_reduction':
+          cost = 3
+          updateData.price_reduction_items = (player.price_reduction_items || 0) + 1
+          break
+        default:
+          return false
+      }
+
+      if ((player.prestige_points || 0) < cost) return false
+
+      updateData.prestige_points = (player.prestige_points || 0) - cost
+      updateData.updated_at = new Date().toISOString()
+
+      const { error } = await supabase
+        .from('players')
+        .update(updateData)
+        .eq('id', playerId)
+
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error buying prestige item:', error)
+      return false
+    }
+  }
 }
