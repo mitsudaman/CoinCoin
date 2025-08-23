@@ -215,3 +215,33 @@ body {
 .owned-building-icon:hover {
   transform: scale(1.1);
 }
+
+/* ゲームコンテナ - 画面サイズ仕様対応 */
+.game-container {
+  width: 100%;
+  min-height: 100vh; /* 縦は画面全体使用 */
+  height: auto;      /* 高さは内容に応じて自動調整 */
+  
+  /* iPhone SE (375px) 〜 iPhone 16 Pro Max (428px) 対応 */
+  max-width: min(428px, 100vw);
+  min-width: 375px;
+  
+  /* 中央配置とスクロール対応 */
+  position: relative;
+  overflow-y: auto;    /* 縦スクロール可能 */
+  overflow-x: hidden;  /* 横スクロールは無効 */
+}
+
+/* 画面幅が375px未満の場合（極小デバイス） */
+@media (max-width: 374px) {
+  .game-container {
+    min-width: 100vw; /* 極小画面では画面幅に合わせる */
+  }
+}
+
+/* デスクトップ等の大画面対応 */
+@media (min-width: 429px) {
+  .game-container {
+    width: 428px; /* iPhone 16 Pro Max幅で固定 */
+  }
+}

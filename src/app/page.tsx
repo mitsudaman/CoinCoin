@@ -204,7 +204,8 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white">
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="game-container bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white">
       {/* カスタムアニメーション用のスタイル */}
       <style dangerouslySetInnerHTML={{ __html: clickEffectStyles }} />
       
@@ -413,20 +414,20 @@ export default function Home() {
       )}
 
       {/* メインゲームエリア */}
-      <main className="container mx-auto px-4 max-w-md">
+      <main className="w-full px-[4%] py-[2%]">
         {/* メインコイン */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-[6%]">
           <button
             onClick={handleCoinClick}
             className="relative group"
           >
-            <div className={`w-48 h-48 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full 
+            <div className={`w-[40vw] max-w-[192px] min-w-[120px] aspect-square bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full 
                           shadow-2xl transform transition-all duration-150 
                           group-hover:scale-105 group-active:scale-95 
                           border-8 border-yellow-500
                           flex items-center justify-center ${currentTheme.coinClass}`}>
               {/* コイン中央の模様 */}
-              <div className="text-6xl font-bold text-yellow-800">¥</div>
+              <div className="text-[clamp(2.5rem,6vw,4rem)] font-bold text-yellow-800">¥</div>
               
               {/* 光エフェクト */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent 
@@ -441,7 +442,7 @@ export default function Home() {
         </div>
 
         {/* ゲーム統計 */}
-        <div className="bg-black/20 rounded-lg p-4 mb-6 backdrop-blur-sm border border-white/10">
+        <div className="bg-black/20 rounded-lg p-[3%] mb-[4%] backdrop-blur-sm border border-white/10">
           <h2 className="text-xl font-bold text-yellow-400 mb-2">統計</h2>
           <div className="grid grid-cols-1 gap-2 text-sm">
             <div className="flex justify-between">
@@ -478,7 +479,7 @@ export default function Home() {
         </div>
 
         {/* 施設セクション */}
-        <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/10">
+        <div className="bg-black/20 rounded-lg p-[3%] backdrop-blur-sm border border-white/10">
           <h2 className="text-xl font-bold text-yellow-400 mb-4">施設</h2>
           <div className="space-y-3">
             {buildings.map((building) => {
@@ -602,6 +603,7 @@ export default function Home() {
           onClose={() => setShowPrestigeShop(false)}
         />
       )}
+      </div>
     </div>
   )
 }
