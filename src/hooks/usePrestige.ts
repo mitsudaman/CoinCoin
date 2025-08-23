@@ -31,7 +31,6 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
         id: player.id,
         username: player.username,
         coins: player.coins,
-        lifetime_coins: player.lifetime_coins,
         prestige_points: player.prestige_points,
         click_power_items: player.click_power_items,
         production_boost_items: player.production_boost_items,
@@ -54,22 +53,20 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
   }, [player])
 
   const prestigeEffect = calculatePrestigeEffect(prestigeData)
-  const lifetimeCoins = (player?.lifetime_coins || 0) + currentCoins
-  const canPrestigeNow = canPrestige(lifetimeCoins)
-  const prestigePoints = calculatePrestigePoints(lifetimeCoins) - prestigeData.prestigePoints
+  // 現在のコイン数ベースでプレステージ判定
+  const canPrestigeNow = canPrestige(currentCoins)
+  const prestigePoints = calculatePrestigePoints(currentCoins)
 
   // プレステージ関連の計算値をログ出力（デバッグ用）
   useEffect(() => {
     console.log('🎯 usePrestige: Calculations updated:', {
-      playerLifetimeCoins: player?.lifetime_coins || 0,
       currentCoins,
-      totalLifetimeCoins: lifetimeCoins,
       canPrestigeNow,
       expectedPrestigePoints: prestigePoints,
       currentPrestigePoints: prestigeData.prestigePoints,
       prestigeEffect
     })
-  }, [player, currentCoins, lifetimeCoins, canPrestigeNow, prestigePoints, prestigeData.prestigePoints, prestigeEffect])
+  }, [player, currentCoins, canPrestigeNow, prestigePoints, prestigeData.prestigePoints, prestigeEffect])
 
   const executePrestige = async (): Promise<boolean> => {
     console.log('🎯 executePrestige called')
@@ -79,7 +76,6 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
       playerUsername: player?.username,
       canPrestigeNow,
       currentCoins,
-      lifetimeCoins,
       prestigePoints,
       isLoading
     })
@@ -92,9 +88,9 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
     if (!canPrestigeNow) {
       console.log('❌ executePrestige failed: Cannot prestige now')
       console.log('🔍 canPrestige check:', {
-        lifetimeCoins,
+        currentCoins,
         required: 500,
-        canPrestige: canPrestige(lifetimeCoins)
+        canPrestige: canPrestige(currentCoins)
       })
       return false
     }

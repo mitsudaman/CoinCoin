@@ -1,19 +1,9 @@
 import { supabase, DbPlayer } from './supabase'
 import { Building } from '@/types/game'
-import { MockGameServiceInstance } from './game-service-mock'
-
-// 開発環境かどうかを判定
-const isDev = process.env.NODE_ENV === 'development' && 
-             (!process.env.NEXT_PUBLIC_SUPABASE_URL || 
-              process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co')
 
 export class GameService {
   // プレイヤーを作成または取得
   static async getOrCreatePlayer(username: string): Promise<DbPlayer | null> {
-    if (isDev) {
-      return MockGameServiceInstance.getOrCreatePlayer(username)
-    }
-
     try {
       // 既存プレイヤーを検索
       const { data: existingPlayer } = await supabase
@@ -51,10 +41,6 @@ export class GameService {
     coins: number,
     buildings: Building[]
   ): Promise<boolean> {
-    if (isDev) {
-      return MockGameServiceInstance.saveGameData(playerId, coins, buildings)
-    }
-
     try {
       const buildingsData: { [key: string]: number } = {}
       buildings.forEach(building => {
@@ -81,10 +67,6 @@ export class GameService {
 
   // ランキング取得（上位10位）
   static async getLeaderboard(): Promise<DbPlayer[]> {
-    if (isDev) {
-      return MockGameServiceInstance.getLeaderboard()
-    }
-
     try {
       const { data, error } = await supabase
         .from('players')
@@ -102,10 +84,6 @@ export class GameService {
 
   // 特定プレイヤーの順位を取得
   static async getPlayerRank(playerId: string): Promise<number> {
-    if (isDev) {
-      return MockGameServiceInstance.getPlayerRank(playerId)
-    }
-
     try {
       // まず現在のプレイヤーのコイン数を取得
       const { data: player, error: playerError } = await supabase
@@ -133,43 +111,27 @@ export class GameService {
   // プレステージ実行
   static async executePrestige(playerId: string, currentCoins: number): Promise<{ success: boolean; prestigePoints: number }> {
     console.log('🎮 GameService.executePrestige called with:', { playerId, currentCoins })
-    console.log('🎮 isDev:', isDev)
-    console.log('🎮 NODE_ENV:', process.env.NODE_ENV)
-    console.log('🎮 SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
     
-    if (isDev) {
-      console.log('🎮 Using mock implementation')
-      try {
-        const result = await MockGameServiceInstance.executePrestige(playerId, currentCoins)
-        console.log('🎮 Mock result:', result)
-        return result
-      } catch (error) {
-        console.error('🎮 Mock executePrestige error:', error)
-        return { success: false, prestigePoints: 0 }
-      }
-    }
-
     try {
       const { data: player } = await supabase
         .from('players')
-        .select('lifetime_coins, prestige_points')
+        .select('prestige_points')
         .eq('id', playerId)
         .single()
 
       if (!player) return { success: false, prestigePoints: 0 }
 
-      const lifetimeCoins = (player.lifetime_coins || 0) + currentCoins
-      const newPrestigePoints = Math.floor(lifetimeCoins / 100)
-      const earnedPoints = newPrestigePoints - (player.prestige_points || 0)
+      // 現在のコイン数からプレステージポイントを計算
+      const newPrestigePoints = Math.floor(currentCoins / 100)
+      const earnedPoints = newPrestigePoints
 
-      // リセット実行
+      // リセット実行（既存のプレステージポイントに追加）
       const { error } = await supabase
         .from('players')
         .update({
           coins: 0,
           buildings: {},
-          lifetime_coins: lifetimeCoins,
-          prestige_points: newPrestigePoints,
+          prestige_points: (player.prestige_points || 0) + earnedPoints,
           updated_at: new Date().toISOString()
         })
         .eq('id', playerId)
@@ -182,12 +144,9 @@ export class GameService {
     }
   }
 
+
   // プレステージアイテム購入
   static async buyPrestigeItem(playerId: string, itemType: string): Promise<boolean> {
-    if (isDev) {
-      return MockGameServiceInstance.buyPrestigeItem(playerId, itemType)
-    }
-
     try {
       const { data: player } = await supabase
         .from('players')

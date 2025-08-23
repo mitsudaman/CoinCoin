@@ -9,6 +9,7 @@ import { CoinClickEffect, clickEffectStyles } from '@/components/CoinClickEffect
 import { useAudio, usePurchaseSound } from '@/hooks/useAudio'
 import { useGameTheme } from '@/hooks/useGameTheme'
 import { usePrestige } from '@/hooks/usePrestige'
+import { useRealtimeLeaderboard } from '@/hooks/useRealtimeLeaderboard'
 import PrestigeButton from '@/components/PrestigeButton'
 import PrestigeShop from '@/components/PrestigeShop'
 
@@ -25,9 +26,8 @@ export default function Home() {
   const [showUsernameInput, setShowUsernameInput] = useState(true)
   const [saveMessage, setSaveMessage] = useState('')
   
-  // ランキング関連の状態
-  const [leaderboard, setLeaderboard] = useState<DbPlayer[]>([])
-  const [playerRank, setPlayerRank] = useState<number>(-1)
+  // ランキング関連の状態（リアルタイム購読）
+  const realtimeLeaderboard = useRealtimeLeaderboard(player?.id)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   
   // エフェクト関連の状態
@@ -43,6 +43,7 @@ export default function Home() {
   // プレステージシステム
   const prestige = usePrestige(player, coins)
   const [showPrestigeShop, setShowPrestigeShop] = useState(false)
+
 
   // コインクリック処理
   const handleCoinClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -135,8 +136,7 @@ export default function Home() {
       if (success) {
         setSaveMessage('保存完了！')
         setTimeout(() => setSaveMessage(''), 2000)
-        // 保存成功時にランキングも更新
-        await loadLeaderboard()
+        // リアルタイム購読により自動でランキング更新される
       } else {
         setSaveMessage('保存に失敗しました')
       }
@@ -145,22 +145,6 @@ export default function Home() {
       setSaveMessage('保存に失敗しました')
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  // ランキングデータ読み込み
-  const loadLeaderboard = async () => {
-    try {
-      const data = await GameService.getLeaderboard()
-      setLeaderboard(data)
-      
-      // プレイヤーの順位も取得
-      if (player) {
-        const rank = await GameService.getPlayerRank(player.id)
-        setPlayerRank(rank)
-      }
-    } catch (error) {
-      console.error('Failed to load leaderboard:', error)
     }
   }
 
@@ -217,6 +201,7 @@ export default function Home() {
       return () => clearInterval(interval)
     }
   }, [coinsPerSecond])
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white">
@@ -310,13 +295,9 @@ export default function Home() {
                        text-white font-bold rounded-lg transition-colors text-sm"
             >
               🏆 ランキング
-            </button>
-            <button
-              onClick={loadLeaderboard}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500
-                       text-white font-bold rounded-lg transition-colors text-sm"
-            >
-              🔄 更新
+              {realtimeLeaderboard.isConnected && (
+                <span className="ml-1 text-xs text-green-300">●</span>
+              )}
             </button>
             <PrestigeButton
               canPrestige={prestige.canPrestigeNow}
@@ -341,9 +322,9 @@ export default function Home() {
                 {saveMessage}
               </span>
             )}
-            {playerRank > 0 && (
+            {realtimeLeaderboard.playerRank > 0 && (
               <span className="text-sm text-yellow-300">
-                あなたの順位: {playerRank}位
+                あなたの順位: {realtimeLeaderboard.playerRank}位
               </span>
             )}
           </div>
@@ -366,14 +347,18 @@ export default function Home() {
               </button>
             </div>
             
-            {leaderboard.length === 0 ? (
+            {realtimeLeaderboard.isLoading ? (
+              <div className="text-center py-8 text-gray-400">
+                <p>ランキングを読み込み中...</p>
+              </div>
+            ) : realtimeLeaderboard.leaderboard.length === 0 ? (
               <div className="text-center py-8 text-gray-400">
                 <p>ランキングデータがありません</p>
                 <p className="text-sm mt-2">保存ボタンを押してデータを保存しましょう！</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {leaderboard.map((player, index) => (
+                {realtimeLeaderboard.leaderboard.map((player, index) => (
                   <div
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg ${
@@ -407,12 +392,21 @@ export default function Home() {
             )}
             
             <div className="mt-4 text-center">
-              <button
-                onClick={loadLeaderboard}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors"
-              >
-                🔄 最新データに更新
-              </button>
+              <div className="flex items-center justify-center gap-2 text-sm">
+                <div className={`flex items-center gap-1 ${
+                  realtimeLeaderboard.isConnected ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${
+                    realtimeLeaderboard.isConnected ? 'bg-green-400' : 'bg-red-400'
+                  }`}></span>
+                  {realtimeLeaderboard.isConnected ? 'リアルタイム接続中' : '接続エラー'}
+                </div>
+                {realtimeLeaderboard.lastUpdated && (
+                  <span className="text-gray-400">
+                    最終更新: {realtimeLeaderboard.lastUpdated.toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
