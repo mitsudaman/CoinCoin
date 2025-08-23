@@ -16,7 +16,7 @@ export function useAudio(audioSrc: string, volume: number = 0.3): UseAudioReturn
     // Web Audio APIで簡単な音を生成（fallback用）
     if (audioSrc === 'click') {
       // ブラウザサポートチェック
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      const AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext
       if (!AudioContext) return
 
       audioRef.current = new Audio()
@@ -72,7 +72,7 @@ export function useAudio(audioSrc: string, volume: number = 0.3): UseAudioReturn
 // Web Audio APIでコインらしいクリック音を生成
 function playClickSound() {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+    const AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext
     if (!AudioContext) return
 
     const audioContext = new AudioContext()
@@ -85,7 +85,7 @@ function playClickSound() {
       createCoinSound(audioContext, 0.05)
     }, 50)
     
-  } catch (error) {
+  } catch {
     console.log('Audio not supported')
   }
 }
@@ -196,31 +196,3 @@ export function usePurchaseSound(): UseAudioReturn {
   return useAudio('/sounds/mixkit-gold-coin-prize-1999.wav', 0.4)
 }
 
-// 購入音を生成
-function playPurchaseSound() {
-  try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-    if (!AudioContext) return
-
-    const audioContext = new AudioContext()
-    
-    // 購入音：上昇する音程
-    const oscillator = audioContext.createOscillator()
-    const gainNode = audioContext.createGain()
-    
-    oscillator.connect(gainNode)
-    gainNode.connect(audioContext.destination)
-    
-    oscillator.frequency.setValueAtTime(400, audioContext.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1)
-    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2)
-    
-    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3)
-    
-    oscillator.start(audioContext.currentTime)
-    oscillator.stop(audioContext.currentTime + 0.3)
-  } catch (error) {
-    console.log('Audio not supported')
-  }
-}

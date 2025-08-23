@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Building } from '@/types/game'
-import { INITIAL_BUILDINGS, getBuildingPrice, getBuildingCps, getClickValue, isBuildingUnlocked, getUnlockRequirementText, getBuildingDisplayState } from '@/data/buildings'
+import { INITIAL_BUILDINGS, getBuildingPrice, getBuildingCps, getClickValue, getUnlockRequirementText, getBuildingDisplayState } from '@/data/buildings'
 import { GameService } from '@/lib/game-service'
 import { DbPlayer } from '@/lib/supabase'
 import { CoinClickEffect, clickEffectStyles } from '@/components/CoinClickEffect'
@@ -72,7 +72,7 @@ export default function Home() {
         setCoins(playerData.coins)
         
         // 建物データを復元
-        const savedBuildings = { ...playerData.buildings }
+        const savedBuildings: Record<string, number> = { ...playerData.buildings }
         setBuildings(prev =>
           prev.map(building => ({
             ...building,
@@ -218,7 +218,7 @@ export default function Home() {
               className="w-full px-4 py-3 bg-black/20 border border-yellow-500/50 rounded-lg 
                        text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none"
               maxLength={20}
-              onKeyPress={(e) => e.key === 'Enter' && handlePlayerLogin()}
+              onKeyDown={(e) => e.key === 'Enter' && handlePlayerLogin()}
             />
             <button
               onClick={handlePlayerLogin}

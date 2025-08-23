@@ -16,7 +16,7 @@ export class GameService {
 
     try {
       // 既存プレイヤーを検索
-      const { data: existingPlayer, error: fetchError } = await supabase
+      const { data: existingPlayer } = await supabase
         .from('players')
         .select('*')
         .eq('username', username)

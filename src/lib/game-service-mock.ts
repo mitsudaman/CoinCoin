@@ -36,7 +36,7 @@ class MockGameService {
 
     try {
       // 既存プレイヤーを検索
-      let existingPlayer = this.players.find(p => p.username === username)
+      const existingPlayer = this.players.find(p => p.username === username)
       
       if (existingPlayer) {
         return existingPlayer
@@ -44,7 +44,7 @@ class MockGameService {
 
       // プレイヤーが存在しない場合は新規作成
       const newPlayer: DbPlayer = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substring(2, 11),
         username,
         coins: 0,
         buildings: {},
