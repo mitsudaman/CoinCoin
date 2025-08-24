@@ -37,8 +37,8 @@ export default function Home() {
   const clickSound = useAudio('/sounds/mixkit-money-bag-drop-1989.wav')
   const purchaseSound = usePurchaseSound()
   
-  // テーマシステム（毎秒獲得数ベース）
-  const { currentTheme, stageUpMessage } = useGameTheme(coinsPerSecond)
+  // シンプルなテーマシステム
+  const { currentTheme, stageUpMessage } = useGameTheme()
   
   // プレステージシステム
   const prestige = usePrestige(player, coins)
@@ -205,59 +205,56 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="game-container bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white">
+      <div className="game-container bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600" style={{color: 'var(--text-primary)'}}>
       {/* カスタムアニメーション用のスタイル */}
       <style dangerouslySetInnerHTML={{ __html: clickEffectStyles }} />
       
       {/* クリックエフェクト */}
       <CoinClickEffect effects={clickEffects} onEffectComplete={handleEffectComplete} />
       
-      {/* ステージアップメッセージ */}
-      {stageUpMessage && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-6 py-3 rounded-full shadow-2xl text-xl">
-            {stageUpMessage}
-          </div>
-        </div>
-      )}
       {/* ユーザー名入力画面 */}
       {showUsernameInput && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gradient-to-br from-blue-800 to-purple-800 p-8 rounded-2xl border border-yellow-500 max-w-md mx-4">
-            <h2 className="text-2xl font-bold text-yellow-400 mb-4 text-center">
-              CoinCoin へようこそ！
-            </h2>
-            <p className="text-gray-300 mb-6 text-center">
-              ユーザー名を入力してゲームを開始しましょう
-            </p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="glass-panel-strong p-8 max-w-md mx-4">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">💰</div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-2">
+                CoinCoin へようこそ！
+              </h2>
+              <p className="text-gray-300 text-lg">
+                ユーザー名を入力してゲームを開始しましょう
+              </p>
+            </div>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="ユーザー名を入力"
-              className="w-full px-4 py-3 bg-black/20 border border-yellow-500/50 rounded-lg 
-                       text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none"
+              className="w-full px-4 py-4 bg-black/30 border-2 border-yellow-500/30 rounded-xl 
+                       text-white placeholder-gray-400 focus:border-yellow-400 focus:outline-none
+                       focus:ring-2 focus:ring-yellow-400/20 transition-all text-lg backdrop-blur-sm"
               maxLength={20}
               onKeyDown={(e) => e.key === 'Enter' && handlePlayerLogin()}
             />
             <button
               onClick={handlePlayerLogin}
               disabled={!username.trim() || isLoading}
-              className="w-full mt-4 py-3 bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600
-                       text-white font-bold rounded-lg transition-colors"
+              className="w-full mt-6 button-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? '読み込み中...' : 'ゲーム開始'}
+              {isLoading ? '🔄 読み込み中...' : '🎮 ゲーム開始'}
             </button>
             
             {/* 音声設定 */}
-            <div className="mt-4 flex justify-center gap-4 text-sm">
+            <div className="mt-6 flex justify-center">
               <button
                 onClick={clickSound.toggleSound}
-                className={`px-3 py-1 rounded ${
-                  clickSound.isEnabled ? 'bg-green-600' : 'bg-gray-600'
-                } text-white transition-colors`}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                  clickSound.isEnabled 
+                    ? 'bg-green-600 hover:bg-green-500 text-white' 
+                    : 'bg-gray-600 hover:bg-gray-500 text-white'
+                } transform hover:scale-105`}
               >
-                🔊 {clickSound.isEnabled ? 'ON' : 'OFF'}
+                {clickSound.isEnabled ? '🔊 音声 ON' : '🔇 音声 OFF'}
               </button>
             </div>
           </div>
@@ -265,39 +262,51 @@ export default function Home() {
       )}
 
       {/* ヘッダー - スコア表示 */}
-      <header className="text-center py-6">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-2">CoinCoin</h1>
-        {player && (
-          <p className="text-yellow-300 mb-2">プレイヤー: {player.username}</p>
-        )}
-        <div className="space-y-2">
-          <div className="text-2xl font-bold">
-            💰 {Math.floor(coins).toLocaleString()} コイン
+      <header className="text-center px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-5xl font-black text-black mb-3" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)'}}>
+            CoinCoin
+          </h1>
+          {player && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/20 rounded-full backdrop-blur-sm border border-black/30">
+              <span className="text-black font-semibold">👤</span>
+              <span className="text-black font-medium">{player.username}</span>
+            </div>
+          )}
+        </div>
+        <div className="glass-panel p-6 mb-4 space-y-3">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-4xl">💰</span>
+            <span className="text-3xl font-bold text-black">
+              {Math.floor(coins).toLocaleString()}
+            </span>
+            <span className="text-xl text-black">コイン</span>
           </div>
-          <div className="text-lg text-yellow-300">
-            ⚡ {coinsPerSecond.toFixed(1)} コイン/秒
+          <div className="flex items-center justify-center gap-2 text-lg">
+            <span className="text-black">⚡</span>
+            <span className="text-black font-semibold">
+              {coinsPerSecond.toFixed(1)} コイン/秒
+            </span>
           </div>
         </div>
         
-        {/* 保存ボタンとランキングボタン */}
+        {/* アクションボタン群 */}
         {player && (
-          <div className="mt-4 flex justify-center items-center gap-2 flex-wrap">
+          <div className="flex justify-center items-center gap-3 flex-wrap px-4">
             <button
               onClick={handleSaveGame}
               disabled={isLoading}
-              className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-gray-600
-                       text-white font-bold rounded-lg transition-colors text-sm"
+              className="button-secondary text-sm px-4 py-2 disabled:opacity-50"
             >
-              {isLoading ? '保存中...' : '💾 保存'}
+              {isLoading ? '🔄 保存中...' : '💾 保存'}
             </button>
             <button
               onClick={() => setShowLeaderboard(!showLeaderboard)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500
-                       text-white font-bold rounded-lg transition-colors text-sm"
+              className="button-secondary text-sm px-4 py-2 relative"
             >
               🏆 ランキング
               {realtimeLeaderboard.isConnected && (
-                <span className="ml-1 text-xs text-green-300">●</span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
               )}
             </button>
             <PrestigeButton
@@ -310,23 +319,29 @@ export default function Home() {
             {prestige.prestigeData.prestigePoints > 0 && (
               <button
                 onClick={() => setShowPrestigeShop(true)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-500
-                         text-white font-bold rounded-lg transition-colors text-sm"
+                className="button-prestige text-sm px-4 py-2 relative"
               >
-                🛒 ショップ ({prestige.prestigeData.prestigePoints}P)
+                <span className="flex items-center gap-1">
+                  🛒 ショップ
+                  <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
+                    {prestige.prestigeData.prestigePoints}P
+                  </span>
+                </span>
               </button>
             )}
             {saveMessage && (
-              <span className={`text-sm ${
-                saveMessage.includes('完了') ? 'text-green-400' : 'text-red-400'
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                saveMessage.includes('完了') 
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
               }`}>
-                {saveMessage}
-              </span>
+                {saveMessage.includes('完了') ? '✓ ' : '⚠ '}{saveMessage}
+              </div>
             )}
             {realtimeLeaderboard.playerRank > 0 && (
-              <span className="text-sm text-yellow-300">
-                あなたの順位: {realtimeLeaderboard.playerRank}位
-              </span>
+              <div className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm font-medium border border-yellow-500/30">
+                🏅 {realtimeLeaderboard.playerRank}位
+              </div>
             )}
           </div>
         )}
@@ -414,64 +429,86 @@ export default function Home() {
       )}
 
       {/* メインゲームエリア */}
-      <main className="w-full px-[4%] py-[2%]">
+      <main className="w-full px-6 py-4 space-y-6">
         {/* メインコイン */}
-        <div className="flex justify-center mb-[6%]">
+        <div className="flex justify-center">
           <button
             onClick={handleCoinClick}
-            className="relative group"
+            className="relative group cursor-pointer select-none"
           >
-            <div className={`w-[40vw] max-w-[192px] min-w-[120px] aspect-square bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full 
-                          shadow-2xl transform transition-all duration-150 
+            <div className={`w-[40vw] max-w-[192px] min-w-[120px] aspect-square bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full 
+                          shadow-2xl transform transition-all duration-200 ease-out
                           group-hover:scale-105 group-active:scale-95 
-                          border-8 border-yellow-500
-                          flex items-center justify-center ${currentTheme.coinClass}`}>
+                          border-8 border-yellow-300
+                          flex items-center justify-center relative overflow-hidden ${currentTheme.coinClass}`}>
               {/* コイン中央の模様 */}
-              <div className="text-[clamp(2.5rem,6vw,4rem)] font-bold text-yellow-800">¥</div>
+              <div className="text-[clamp(2.5rem,6vw,4rem)] font-black text-yellow-900 drop-shadow-lg relative z-10">¥</div>
+              
+              {/* グラデーションオーバーレイ */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-200/40 via-transparent to-yellow-200/40"></div>
               
               {/* 光エフェクト */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent 
-                            transform rotate-45"></div>
+              <div className="absolute top-4 left-4 w-8 h-8 bg-white/60 rounded-full blur-md"></div>
+              <div className="absolute top-6 left-6 w-4 h-4 bg-white/80 rounded-full blur-sm"></div>
             </div>
             
+            {/* ホバーエフェクト */}
+            <div className="absolute inset-0 rounded-full bg-yellow-300/20 
+                          transform scale-0 group-hover:scale-110 
+                          transition-transform duration-300 ease-out pointer-events-none"></div>
+            
             {/* クリック時のリップル効果 */}
-            <div className="absolute inset-0 rounded-full bg-yellow-400/30 
-                          transform scale-0 group-active:scale-110 
-                          transition-transform duration-200"></div>
+            <div className="absolute inset-0 rounded-full bg-yellow-400/40 
+                          transform scale-0 group-active:scale-125 
+                          transition-transform duration-150 ease-out pointer-events-none"></div>
           </button>
         </div>
 
         {/* ゲーム統計 */}
-        <div className="bg-black/20 rounded-lg p-[3%] mb-[4%] backdrop-blur-sm border border-white/10">
-          <h2 className="text-xl font-bold text-yellow-400 mb-2">統計</h2>
-          <div className="grid grid-cols-1 gap-2 text-sm">
-            <div className="flex justify-between">
-              <span>クリック値:</span>
-              <span className="text-yellow-300">{clickValue + prestige.prestigeEffect.clickBonus} コイン</span>
+        <div className="bg-white/50 backdrop-blur-lg border border-black/10 rounded-xl p-6 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">📊</span>
+            <h2 className="text-xl font-bold text-black">統計</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex justify-between items-center py-3 px-4 bg-white/70 backdrop-blur-md border border-black/20 rounded-lg">
+              <span className="font-medium flex items-center gap-2 text-black">
+                <span>💆</span> クリック値
+              </span>
+              <span className="text-black font-bold">{clickValue + prestige.prestigeEffect.clickBonus} コイン</span>
             </div>
-            <div className="flex justify-between">
-              <span>総コイン数:</span>
-              <span className="text-yellow-300">{Math.floor(coins).toLocaleString()}</span>
+            <div className="flex justify-between items-center py-3 px-4 bg-white/70 backdrop-blur-md border border-black/20 rounded-lg">
+              <span className="font-medium flex items-center gap-2 text-black">
+                <span>💰</span> 総コイン数
+              </span>
+              <span className="text-black font-bold">{Math.floor(coins).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between">
-              <span>毎秒獲得:</span>
-              <span className="text-yellow-300">{coinsPerSecond.toFixed(1)}</span>
+            <div className="flex justify-between items-center py-3 px-4 bg-white/70 backdrop-blur-md border border-black/20 rounded-lg">
+              <span className="font-medium flex items-center gap-2 text-black">
+                <span>⚡</span> 毎秒獲得
+              </span>
+              <span className="text-black font-bold">{coinsPerSecond.toFixed(1)}</span>
             </div>
             {prestige.prestigeData.prestigePoints > 0 && (
               <>
-                <hr className="border-gray-600 my-2" />
-                <div className="text-xs text-purple-300 font-bold mb-1">プレステージ効果</div>
-                <div className="flex justify-between text-xs">
-                  <span>クリックボーナス:</span>
-                  <span className="text-purple-300">+{prestige.prestigeEffect.clickBonus}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span>生産効率:</span>
-                  <span className="text-purple-300">{(prestige.prestigeEffect.productionMultiplier * 100).toFixed(0)}%</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span>価格割引:</span>
-                  <span className="text-purple-300">{(prestige.prestigeEffect.priceDiscount * 100).toFixed(0)}%</span>
+                <div className="border-t border-white/20 mt-4 pt-4">
+                  <div className="text-sm text-purple-600 font-bold mb-3 flex items-center gap-2">
+                    <span>✨</span> プレステージ効果
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 text-sm">
+                    <div className="flex justify-between items-center py-1 px-3 bg-white/70 backdrop-blur-md border border-black/20 rounded">
+                      <span>クリックボーナス:</span>
+                      <span className="text-purple-600 font-semibold">+{prestige.prestigeEffect.clickBonus}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 px-3 bg-white/70 backdrop-blur-md border border-black/20 rounded">
+                      <span>生産効率:</span>
+                      <span className="text-purple-600 font-semibold">{(prestige.prestigeEffect.productionMultiplier * 100).toFixed(0)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 px-3 bg-white/70 backdrop-blur-md border border-black/20 rounded">
+                      <span>価格割引:</span>
+                      <span className="text-purple-300 font-semibold">{(prestige.prestigeEffect.priceDiscount * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -479,9 +516,12 @@ export default function Home() {
         </div>
 
         {/* 施設セクション */}
-        <div className="bg-black/20 rounded-lg p-[3%] backdrop-blur-sm border border-white/10">
-          <h2 className="text-xl font-bold text-yellow-400 mb-4">施設</h2>
-          <div className="space-y-3">
+        <div className="bg-white/50 backdrop-blur-lg border border-black/10 rounded-xl p-6 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-2xl">🏭</span>
+            <h2 className="text-xl font-bold text-black">施設</h2>
+          </div>
+          <div className="space-y-4">
             {buildings.map((building) => {
               const price = getBuildingPrice(building, prestige.prestigeEffect.priceDiscount)
               const cps = getBuildingCps(building, prestige.prestigeEffect.productionMultiplier)
@@ -492,14 +532,16 @@ export default function Home() {
               return (
                 <React.Fragment key={building.id}>
                   <div
-                    className={`p-3 rounded-lg border transition-all ${
+                    className={`p-4 rounded-xl border transition-all duration-200 ${
                       displayState === 'unlocked'
                         ? canAfford 
-                          ? 'border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20' 
-                          : 'border-gray-600 bg-gray-800/50'
+                          ? building.clickValue 
+                            ? 'border-yellow-400/50 bg-white/60 hover:bg-white/75 hover:border-yellow-400/70 hover:shadow-lg hover:shadow-yellow-400/20'
+                            : 'border-yellow-400/50 bg-white/70 hover:bg-white/80 hover:border-yellow-400/70 hover:shadow-lg hover:shadow-yellow-400/20'
+                          : 'border-gray-400/50 bg-white/50'
                         : displayState === 'next'
-                        ? 'border-yellow-700 bg-yellow-900/20 opacity-75'
-                        : 'border-gray-700 bg-gray-900/50 opacity-60'
+                        ? 'border-yellow-600/40 bg-white/40 opacity-80'
+                        : 'border-gray-400/40 bg-gray-200/80 opacity-50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -509,18 +551,21 @@ export default function Home() {
                             {displayState === 'silhouette' ? '❓' : building.icon}
                           </span>
                           <span className={`font-bold ${
-                            displayState === 'unlocked' ? 'text-white' :
-                            displayState === 'next' ? 'text-yellow-200' : 'text-gray-400'
+                            displayState === 'unlocked' ? 'text-black' :
+                            displayState === 'next' ? 'text-gray-700' : 'text-gray-400'
                           }`}>
                             {displayState === 'silhouette' ? '???????' : building.name}
                           </span>
                           {building.owned > 0 && (
-                            <span className="px-2 py-1 bg-yellow-600 text-xs rounded-full">
+                            <span className="px-2 py-1 bg-yellow-500 text-black text-xs rounded-full font-bold">
                               {building.owned}
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-300 mb-1">
+                        <div className={`text-sm mb-1 ${
+                          displayState === 'unlocked' ? 'text-gray-700' :
+                          displayState === 'next' ? 'text-gray-600' : 'text-gray-400'
+                        }`}>
                           {displayState === 'unlocked' 
                             ? building.description 
                             : displayState === 'next'
@@ -529,7 +574,7 @@ export default function Home() {
                           }
                         </div>
                         {(displayState === 'unlocked' || displayState === 'next') && (
-                          <div className="text-xs text-yellow-300">
+                          <div className="text-xs text-gray-600 font-medium">
                             {building.clickValue ? (
                               <>
                                 +{building.clickValue} クリック報酬
@@ -555,34 +600,53 @@ export default function Home() {
                       <button
                         onClick={() => displayState === 'unlocked' && handleBuyBuilding(building.id)}
                         disabled={displayState !== 'unlocked' || !canAfford}
-                        className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                        className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 transform ${
                           displayState === 'silhouette'
-                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            ? 'bg-gray-500/70 text-gray-700 cursor-not-allowed'
                             : displayState === 'next'
-                            ? 'bg-yellow-800 text-yellow-300 cursor-not-allowed'
+                            ? 'bg-amber-700/70 text-amber-200 cursor-not-allowed'
                             : canAfford
-                            ? 'bg-yellow-600 hover:bg-yellow-500 text-white'
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            ? 'button-primary hover:scale-105 active:scale-95'
+                            : 'bg-gray-500/70 text-gray-700 cursor-not-allowed'
                         }`}
                       >
-                        {displayState === 'silhouette' ? '???' : price.toLocaleString()}
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs opacity-70">購入</span>
+                          <span className="text-sm font-black">
+                            {displayState === 'silhouette' ? '???' : price.toLocaleString()}
+                          </span>
+                        </div>
                       </button>
                     </div>
                   </div>
                   
-                  {/* Cookie Clickerスタイル: 所有施設アイコン表示（クリック強化装置以外） */}
+                  {/* 所有施設アイコン表示 */}
                   {building.owned > 0 && building.baseCps > 0 && (
-                    <div className="mt-2 ml-4 p-3 bg-gradient-to-r from-black/10 to-transparent rounded-lg border-l-2 border-yellow-500/30">
-                      <div className="flex flex-wrap gap-1">
-                        {Array.from({ length: building.owned }, (_, index) => (
+                    <div className="mt-3 p-4 bg-white/70 backdrop-blur-md border border-black/20 rounded-xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-black">所有中:</span>
+                          <span className="px-2 py-1 bg-white/80 border border-black/20 rounded text-xs font-bold text-black">{building.owned}個</span>
+                        </div>
+                        <span className="text-xs text-gray-600">
+                          生産中: {cps.toFixed(1)} コイン/秒
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-8 gap-2">
+                        {Array.from({ length: Math.min(building.owned, 24) }, (_, index) => (
                           <div 
                             key={`${building.id}-icon-${index}`}
-                            className="text-xl owned-building-icon animate-fadeIn cursor-pointer"
+                            className="text-xl flex items-center justify-center p-1 bg-white/70 border border-black/10 rounded hover:bg-white/80 transition-colors cursor-pointer"
                             title={`${building.name} #${index + 1}`}
                           >
                             {building.icon}
                           </div>
                         ))}
+                        {building.owned > 24 && (
+                          <div className="flex items-center justify-center p-1 bg-white/80 border border-black/20 rounded text-xs font-bold text-black">
+                            +{building.owned - 24}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

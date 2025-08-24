@@ -1,8 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base Colors */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  /* Brand Colors */
+  --brand-primary: #fbbf24; /* yellow-400 */
+  --brand-secondary: #7c3aed; /* purple-600 */
+  --brand-accent: #f59e0b; /* amber-500 */
+  
+  /* Semantic Colors */
+  --success: #10b981; /* emerald-500 */
+  --warning: #f59e0b; /* amber-500 */
+  --error: #ef4444; /* red-500 */
+  --info: #3b82f6; /* blue-500 */
+  
+  /* Surface Colors */
+  --surface-primary: rgba(120, 53, 15, 0.3);
+  --surface-secondary: rgba(146, 64, 14, 0.2);
+  --surface-tertiary: rgba(180, 83, 9, 0.1);
+  --surface-overlay: rgba(69, 26, 3, 0.9);
+  
+  /* Border Colors */
+  --border-primary: rgba(120, 53, 15, 0.4);
+  --border-secondary: rgba(146, 64, 14, 0.3);
+  --border-accent: rgba(180, 83, 9, 0.6);
+  
+  /* Text Colors */
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.6);
+  --text-brand: #451a03;
+  
+  /* Shadow & Glow */
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-strong: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --glow-brand: 0 0 20px rgba(251, 191, 36, 0.3);
+  --glow-prestige: 0 0 30px rgba(124, 58, 237, 0.4);
+  
+  /* Spacing Scale (8px base) */
+  --space-xs: 0.5rem; /* 8px */
+  --space-sm: 0.75rem; /* 12px */
+  --space-md: 1rem; /* 16px */
+  --space-lg: 1.5rem; /* 24px */
+  --space-xl: 2rem; /* 32px */
+  --space-2xl: 3rem; /* 48px */
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-full: 9999px;
+  
+  /* Transition */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
 }
 
 @theme inline {
@@ -10,187 +66,28 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-japanese: var(--font-noto-sans-jp);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-noto-sans-jp), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.025em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* UI進化システム - 背景 */
-.bg-stage-1 {
-  background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-}
 
-.bg-stage-2 {
-  background: linear-gradient(135deg, #1e3a8a, #7c3aed, #dc2626);
-  position: relative;
-}
-
-.bg-stage-2::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: twinkle 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.bg-stage-3 {
-  background: linear-gradient(45deg, #1e3a8a, #7c3aed, #f59e0b, #dc2626);
-  background-size: 400% 400%;
-  animation: gradientShift 8s ease infinite;
-}
-
-.bg-stage-4 {
-  background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-  background-size: 800% 800%;
-  animation: rainbowShift 4s ease infinite;
-}
-
-/* メインコイン進化 */
+/* メインコイン */
 .coin-basic {
   transform: scale(1);
-  transition: transform 0.15s ease;
+  transition: all var(--transition-fast);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
-.coin-industrial {
-  transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-  transition: all 0.15s ease;
-}
 
-.coin-prosperity {
-  transform: scale(1.1);
-  box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
-  animation: coinGlow 2s ease-in-out infinite alternate;
-}
-
-.coin-imperial {
-  transform: scale(1.15);
-  box-shadow: 0 0 80px rgba(255, 215, 0, 1);
-  animation: coinImperial 3s linear infinite;
-}
-
-/* 統計パネル進化 */
-.panel-basic {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.panel-industrial {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
-  border: 2px solid #fbbf24;
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-}
-
-.panel-prosperity {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
-  border: 2px solid #fbbf24;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-  position: relative;
-}
-
-.panel-prosperity::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, #fbbf24, #f59e0b, #fbbf24);
-  background-size: 200% 200%;
-  animation: borderGlow 3s ease infinite;
-  z-index: -1;
-  border-radius: inherit;
-}
-
-.panel-imperial {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  border: 3px solid transparent;
-  background-clip: padding-box;
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
-  position: relative;
-}
-
-.panel-imperial::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-  background-size: 400% 400%;
-  animation: rainbowBorder 2s linear infinite;
-  z-index: -1;
-  border-radius: inherit;
-}
-
-/* アニメーション */
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes rainbowShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes coinGlow {
-  0% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
-  100% { box-shadow: 0 0 80px rgba(255, 215, 0, 1); }
-}
-
-@keyframes coinImperial {
-  0% { 
-    transform: scale(1.15) rotate(0deg);
-    box-shadow: 0 0 80px rgba(255, 215, 0, 1);
-  }
-  25% { 
-    transform: scale(1.2) rotate(90deg);
-    box-shadow: 0 0 100px rgba(255, 0, 255, 0.8);
-  }
-  50% { 
-    transform: scale(1.15) rotate(180deg);
-    box-shadow: 0 0 80px rgba(0, 255, 255, 0.8);
-  }
-  75% { 
-    transform: scale(1.2) rotate(270deg);
-    box-shadow: 0 0 100px rgba(255, 255, 0, 0.8);
-  }
-  100% { 
-    transform: scale(1.15) rotate(360deg);
-    box-shadow: 0 0 80px rgba(255, 215, 0, 1);
-  }
-}
-
-@keyframes borderGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes rainbowBorder {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
 
 /* 所有施設アイコン用アニメーション */
 @keyframes fadeIn {
@@ -219,8 +116,8 @@ body {
 /* ゲームコンテナ - 画面サイズ仕様対応 */
 .game-container {
   width: 100%;
-  min-height: 100vh; /* 縦は画面全体使用 */
-  height: auto;      /* 高さは内容に応じて自動調整 */
+  min-height: 100vh;
+  height: auto;
   
   /* iPhone SE (375px) 〜 iPhone 16 Pro Max (428px) 対応 */
   max-width: min(428px, 100vw);
@@ -228,20 +125,120 @@ body {
   
   /* 中央配置とスクロール対応 */
   position: relative;
-  overflow-y: auto;    /* 縦スクロール可能 */
-  overflow-x: hidden;  /* 横スクロールは無効 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* スクロールバーのスタイリング */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(251, 191, 36, 0.3) transparent;
+}
+
+.game-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.game-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.game-container::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.3);
+  border-radius: 2px;
+}
+
+.game-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.5);
 }
 
 /* 画面幅が375px未満の場合（極小デバイス） */
 @media (max-width: 374px) {
   .game-container {
-    min-width: 100vw; /* 極小画面では画面幅に合わせる */
+    min-width: 100vw;
   }
 }
 
 /* デスクトップ等の大画面対応 */
 @media (min-width: 429px) {
   .game-container {
-    width: 428px; /* iPhone 16 Pro Max幅で固定 */
+    width: 428px;
+    box-shadow: var(--shadow-strong);
+    border-radius: 0;
   }
+}
+
+/* 新しいユーティリティクラス */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-medium);
+}
+
+.glass-panel-strong {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-strong), var(--glow-brand);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+  color: #000;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium), var(--glow-brand);
+  filter: brightness(1.05);
+}
+
+.button-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-soft);
+}
+
+.button-secondary {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.button-secondary:hover {
+  background: var(--surface-primary);
+  border-color: var(--border-accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+.button-prestige {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-soft), var(--glow-prestige);
+  cursor: pointer;
+}
+
+.button-prestige:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium), var(--glow-prestige);
+  filter: brightness(1.1);
 }
