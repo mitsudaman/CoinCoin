@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CoinCoin 🪙
 
-## Getting Started
+**Cookie Clickerクローンのインクリメンタルゲーム**
 
-First, run the development server:
+シンプルなコイン収集ゲームです。コインをクリックして稼ぎ、自動生成施設を購入してより多くのコインを獲得しましょう！
+
+## 🎮 ゲームの遊び方
+
+1. **コインをクリック**: 画面中央のコインをクリック/タップしてコインを獲得
+2. **施設を購入**: 貯めたコインで自動生成施設を購入
+3. **自動生成**: 購入した施設が自動的にコインを生成
+4. **プレステージ**: 一定数に達したら特殊通貨と交換してショップにて強化
+5. **ランキング**: リアルタイムで他プレイヤーと競争
+
+## 🏭 施設システム
+
+| 施設名 | 効果 | 価格帯 |
+|--------|------|--------|
+| 🔧 クリック強化装置 | クリック値アップ | 10コイン〜 |
+| ⚙️ コイン製造機 | 自動生成 0.1/秒 | 15コイン〜 |
+| ⛏️ 金鉱 | 自動生成 1.0/秒 | 100コイン〜 |
+| 🏦 銀行 | 自動生成 8.0/秒 | 1,100コイン〜 |
+| 🏛️ 造幣局 | 自動生成 47/秒 | 12,000コイン〜 |
+| 💎 宝石店 | 自動生成 260/秒 | 130,000コイン〜 |
+
+## 🛒 プレステージショップ
+
+特殊通貨「プレステージポイント」で購入できる永続的な強化アイテム
+
+| アイテム名 | 効果 | 価格 |
+|------------|------|------|
+| 🖱️ クリックパワー | クリック報酬 +100コイン | 1PP |
+| 🏭 生産ブースト | 全施設の生産量 +100% | 2PP |
+| 💰 価格削減 | 全施設の価格 -50% | 3PP |
+
+**プレステージシステム**: 500コイン到達でリセット＋PP獲得、永続強化で次回プレイが有利に（レビュー用にレベルデザインを調整しております）
+
+## 🚀 技術仕様
+
+- **フロントエンド**: Next.js 14 (App Router) + TypeScript
+- **スタイリング**: Tailwind CSS + CSS animations
+- **データベース**: Supabase (PostgreSQL)
+- **リアルタイム**: Supabase Realtime
+- **デプロイ**: Vercel + Supabase
+
+## 🛠️ セットアップ
+
+### 前提条件
+- Node.js 18.0以上
+- npm または yarn
+
+### 環境構築
 
 ```bash
+# リポジトリをクローン
+git clone <repository-url>
+cd CoinCoin
+
+# 依存関係をインストール
+npm install
+
+# 環境変数を設定
+cp .env.example .env.local
+# Supabaseの接続情報を .env.local に設定
+
+# 開発サーバーを起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📱 画面サイズ対応
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **メイン対応**: iPhone SE 2nd/3rd世代 (375px × 667px)
+- **スケール対応**: iPhone 16 Pro Max まで
+- **iPad**: 適切なパディング付きで対応
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 デザインシステム
+- **メインカラー**: 金色系 (Amber)
+- **背景**: 暗いグラデーション
+- **UI**: Glass morphismスタイル
+- **フォント**: Noto Sans JP (日本語対応)
 
-## Learn More
+## 🌟 今後の拡張案
 
-To learn more about Next.js, take a look at the following resources:
+### 🎬 演出
+- **パーティクルエフェクト**: コインクリック時の光の粒子
+- **メインUIの動的変化**: コイン→コイン×5→コインの山（進行度連動）
+- **ランキング更新エフェクト**: 順位変動時のフラッシュ
+- **施設稼働アニメーション**: 生産中の施設アイコンが脈動
+- **ゴールデンタイム**: 期間限定の獲得量2倍イベント
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🎵 アセット
+- **メインコイン画像**: 単体コイン、コイン5枚重ね、コインの山
+- **BGM**: 穏やかな作業用ループ音楽
+- **専用アイコン**: 施設・アイテムの高品質グラフィック
+- **イベントトリガー素材**: 落下する札束、光るダイヤ、特殊コイン
+- **イベント用UI**: 金色エフェクト・画面フラッシュ・タイマー・倍率表示バナー
 
-## Deploy on Vercel
+## 🚀 長期拡張構想
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔧 改修方針
+- ✅ **プレステージ要素**: 周回プレイごとに強化が残る仕組み（実装済み）
+- **リソース進化演出**: 一定段階でリソースの見た目を変化（コイン → 札束 → 金塊）
+- **ゲーム性拡張**: 単純なインクリメントを超えたゲーム要素の導入
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+### 🎮 ゲーム拡張案
+
+**[Astro Prospector](https://store.steampowered.com/app/3503440/Astro_Prospector/)**
+- インクリメンタル成長と弾幕シューティングを融合
+- 参考ポイント：戦闘でボーナスコイン獲得、機体の拡張、次のステージに突入、というゲームへの没入感を高めるループ
+
+**[Rogue with the Dead](https://play.google.com/store/apps/details?id=net.room6.horizon&hl=ja)**
+- 自動進行とローグライト的な周回成長
+- 参考ポイント: 放置収益と永続強化を組み合わせた長期やり込み要素
+
+**[ほりほりドリル](https://store.steampowered.com/app/2916770)**
+- 採掘による地形探索と段階的な環境変化
+- 参考ポイント: クリックで地層を掘り進み、ステージ毎に背景・獲得アイテム変化。獲得アイテムによって装備を作成（厳選あり）してさらに機体を拡張。
+
+### 🎲 イベント拡張案
+- **ランダムイベント**: 宝箱・泥棒・投資チャンスなど
+- **選択肢分岐**: プレイヤー判断による報酬・リスクの偶然性
+- **期間限定**: 季節イベント・特別ミッション
+
+
+## 📂 プロジェクト構造
+
+```
+src/
+├── app/                 # Next.js App Router
+├── components/          # Reactコンポーネント
+├── data/               # ゲームデータ定義
+├── hooks/              # カスタムフック
+├── lib/                # ユーティリティ・API
+└── types/              # TypeScript型定義
+```
+
+
+---
+
+## ⏱️ 開発情報
+
+- **プロジェクト種別**: 技術課題用プロトタイプ
+- **総実装時間**: 約8時間
+- **時間内訳**:
+  - セットアップ・基本機能: 3時間
+  - UI/UXデザイン調整: 4時間  
+  - ドキュメント作成: 1時間
