@@ -22,7 +22,6 @@ export function useRealtimeLeaderboard(playerId?: string) {
   // ランキングデータを取得する関数
   const fetchLeaderboard = useCallback(async () => {
     try {
-      console.log('🎯 useRealtimeLeaderboard: Fetching leaderboard data...')
       setState(prev => ({ ...prev, isLoading: true }))
 
       const leaderboardData = await GameService.getLeaderboard()
@@ -40,13 +39,8 @@ export function useRealtimeLeaderboard(playerId?: string) {
         lastUpdated: new Date()
       }))
 
-      console.log('🎯 useRealtimeLeaderboard: Data updated', {
-        leaderboardCount: leaderboardData.length,
-        playerRank,
-        timestamp: new Date().toISOString()
-      })
     } catch (error) {
-      console.error('🎯 useRealtimeLeaderboard: Error fetching data:', error)
+      // Error fetching data
       setState(prev => ({
         ...prev,
         isLoading: false
@@ -61,7 +55,6 @@ export function useRealtimeLeaderboard(playerId?: string) {
 
   // Supabase Realtime購読の設定
   useEffect(() => {
-    console.log('🎯 useRealtimeLeaderboard: Setting up realtime subscription...')
 
     // Realtimeチャンネルを作成
     const channel = supabase
@@ -74,18 +67,12 @@ export function useRealtimeLeaderboard(playerId?: string) {
           table: 'players'
         },
         (payload) => {
-          console.log('🎯 useRealtimeLeaderboard: Received database change:', {
-            eventType: payload.eventType,
-            table: payload.table,
-            timestamp: new Date().toISOString()
-          })
 
           // データベース変更を受信したらランキングを再取得
           fetchLeaderboard()
         }
       )
       .subscribe((status) => {
-        console.log('🎯 useRealtimeLeaderboard: Subscription status:', status)
         setState(prev => ({ 
           ...prev, 
           isConnected: status === 'SUBSCRIBED' 
@@ -94,7 +81,6 @@ export function useRealtimeLeaderboard(playerId?: string) {
 
     // クリーンアップ関数
     return () => {
-      console.log('🎯 useRealtimeLeaderboard: Cleaning up realtime subscription')
       supabase.removeChannel(channel)
     }
   }, [fetchLeaderboard]) // fetchLeaderboardに依存

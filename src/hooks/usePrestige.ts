@@ -27,15 +27,6 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
   // プレイヤーデータからプレステージデータを更新
   useEffect(() => {
     if (player) {
-      console.log('🎯 usePrestige: Player data loaded:', {
-        id: player.id,
-        username: player.username,
-        coins: player.coins,
-        prestige_points: player.prestige_points,
-        click_power_items: player.click_power_items,
-        production_boost_items: player.production_boost_items,
-        price_reduction_items: player.price_reduction_items
-      })
       
       const newPrestigeData = {
         prestigePoints: player.prestige_points || 0,
@@ -44,11 +35,9 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
         priceReductionItems: player.price_reduction_items || 0,
         specialEffects: player.special_effects || 0
       }
-      
-      console.log('🎯 usePrestige: Setting prestige data:', newPrestigeData)
       setPrestigeData(newPrestigeData)
     } else {
-      console.log('🎯 usePrestige: No player data')
+      // No player data
     }
   }, [player])
 
@@ -58,60 +47,27 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
   const prestigePoints = calculatePrestigePoints(currentCoins)
 
   // プレステージ関連の計算値をログ出力（デバッグ用）
-  useEffect(() => {
-    console.log('🎯 usePrestige: Calculations updated:', {
-      currentCoins,
-      canPrestigeNow,
-      expectedPrestigePoints: prestigePoints,
-      currentPrestigePoints: prestigeData.prestigePoints,
-      prestigeEffect
-    })
-  }, [player, currentCoins, canPrestigeNow, prestigePoints, prestigeData.prestigePoints, prestigeEffect])
+  // Prestige calculations updated when dependencies change
 
   const executePrestige = async (): Promise<boolean> => {
-    console.log('🎯 executePrestige called')
-    console.log('🎯 Current state:', {
-      hasPlayer: !!player,
-      playerId: player?.id,
-      playerUsername: player?.username,
-      canPrestigeNow,
-      currentCoins,
-      prestigePoints,
-      isLoading
-    })
     
     if (!player) {
-      console.log('❌ executePrestige failed: No player')
       return false
     }
     
     if (!canPrestigeNow) {
-      console.log('❌ executePrestige failed: Cannot prestige now')
-      console.log('🔍 canPrestige check:', {
-        currentCoins,
-        required: 500,
-        canPrestige: canPrestige(currentCoins)
-      })
       return false
     }
     
     if (isLoading) {
-      console.log('❌ executePrestige failed: Already loading')
       return false
     }
 
-    console.log('✅ All conditions passed, executing prestige...')
     setIsLoading(true)
     try {
-      console.log('🚀 Calling GameService.executePrestige with:', {
-        playerId: player.id,
-        currentCoins
-      })
       const result = await GameService.executePrestige(player.id, currentCoins)
-      console.log('📊 GameService.executePrestige result:', result)
       
       if (result.success) {
-        console.log('✅ Prestige successful, updating local state')
         // プレステージデータを更新（プレステージポイント追加）
         setPrestigeData(prev => ({
           ...prev,
@@ -119,15 +75,13 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
         }))
         return true
       } else {
-        console.log('❌ Prestige failed: GameService returned success=false')
         return false
       }
     } catch (error) {
-      console.error('❌ Prestige execution failed with error:', error)
+      // Prestige execution failed
       return false
     } finally {
       setIsLoading(false)
-      console.log('🎯 executePrestige completed')
     }
   }
 
@@ -175,7 +129,7 @@ export function usePrestige(player: DbPlayer | null, currentCoins: number): UseP
       }
       return false
     } catch (error) {
-      console.error('Prestige item purchase failed:', error)
+      // Prestige item purchase failed
       return false
     } finally {
       setIsLoading(false)

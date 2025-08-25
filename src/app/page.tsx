@@ -92,7 +92,7 @@ export default function Home() {
         setShowUsernameInput(false)
       }
     } catch (error) {
-      console.error('Login failed:', error)
+      // Login failed
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +100,6 @@ export default function Home() {
 
   // プレステージ完了後の処理
   const handlePrestigeCompleted = async () => {
-    console.log('🎯 handlePrestigeCompleted called')
     
     if (!player) return
     
@@ -115,12 +114,9 @@ export default function Home() {
       const updatedPlayerData = await GameService.getOrCreatePlayer(player.username)
       if (updatedPlayerData) {
         setPlayer(updatedPlayerData)
-        console.log('🎯 Player data refreshed after prestige:', updatedPlayerData)
       }
-      
-      console.log('🎯 Game state reset completed')
     } catch (error) {
-      console.error('🎯 Error in handlePrestigeCompleted:', error)
+      // Error in handlePrestigeCompleted
     }
   }
 
@@ -141,7 +137,7 @@ export default function Home() {
         setSaveMessage('保存に失敗しました')
       }
     } catch (error) {
-      console.error('Save failed:', error)
+      // Save failed
       setSaveMessage('保存に失敗しました')
     } finally {
       setIsLoading(false)

@@ -31,7 +31,7 @@ export function useAudio(audioSrc: string, volume: number = 0.3): UseAudioReturn
       
       // 読み込みエラー時のハンドリング
       audioRef.current.onerror = () => {
-        console.warn(`Failed to load audio: ${audioSrc}`)
+        // Failed to load audio
         audioRef.current = null
       }
     }
@@ -86,7 +86,7 @@ function playClickSound() {
     }, 50)
     
   } catch {
-    console.log('Audio not supported')
+    // Audio not supported
   }
 }
 

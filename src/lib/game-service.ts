@@ -30,7 +30,7 @@ export class GameService {
       if (createError) throw createError
       return newPlayer
     } catch (error) {
-      console.error('Error in getOrCreatePlayer:', error)
+      // Error in getOrCreatePlayer
       return null
     }
   }
@@ -60,7 +60,7 @@ export class GameService {
       if (error) throw error
       return true
     } catch (error) {
-      console.error('Error saving game data:', error)
+      // Error saving game data
       return false
     }
   }
@@ -77,7 +77,7 @@ export class GameService {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('Error fetching leaderboard:', error)
+      // Error fetching leaderboard
       return []
     }
   }
@@ -103,14 +103,13 @@ export class GameService {
       if (countError) return -1
       return (count || 0) + 1
     } catch (error) {
-      console.error('Error getting player rank:', error)
+      // Error getting player rank
       return -1
     }
   }
 
   // プレステージ実行
   static async executePrestige(playerId: string, currentCoins: number): Promise<{ success: boolean; prestigePoints: number }> {
-    console.log('🎮 GameService.executePrestige called with:', { playerId, currentCoins })
     
     try {
       const { data: player } = await supabase
@@ -139,7 +138,7 @@ export class GameService {
       if (error) throw error
       return { success: true, prestigePoints: earnedPoints }
     } catch (error) {
-      console.error('Error executing prestige:', error)
+      // Error executing prestige
       return { success: false, prestigePoints: 0 }
     }
   }
@@ -189,7 +188,7 @@ export class GameService {
       if (error) throw error
       return true
     } catch (error) {
-      console.error('Error buying prestige item:', error)
+      // Error buying prestige item
       return false
     }
   }
